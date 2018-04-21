@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Title Page</title>
+    </head>
+    <body>
+        <textarea id='test' style="width: 45%; height: 800px;float: left;">
+# MarkDown 文本转换
+
+---
+##文本样式
+####文章级别
+`#一级标题`
+`## 二级标题`
+`###三级标题`
+`####四级标题`
+`#####五级标题`
+`正文`
+[由于避免和本文标题冲突，因此不展示预览]
+
+####链接 :
+* 不添加http头，则是相对于当前页面的url： `[链接文字](url)` 预览： [链接文字](url)
+* 不添加http头，但以/开头，则是相对于本站点的url： `[链接文字](/url)` 预览： [链接文字](/url)
+* 添加http头，则是绝对url： `[链接文字](http://url)` 预览： [链接文字](http://url)
+
+[以上针对url的内容运用到图片中也是一样的]
+
+* 自动url： `<ftp://url>` 预览: <ftp://url>, <mailto://123@abc.com>, <http://url>, <这不是链接>
+
+[自动url可以适配https/ftp/mailto三种类型开头的url]
+
+####加粗:
+`**Bold**` 预览： **Bold**
+__好的__
+
+####斜体字:
+`*Italics*` 预览： *Italics*
+
+####*删除线:
+`~~text~~` 预览: ~~text~~
+
+####* 高亮:
+`==text==` 预览: ==text==
+
+####段落:
+不带特殊块区标记的内容都被视为段落
+
+####换行符:
+[空行]
+
+
+
+---
+##图片
+`![alt文字](img.png)`
+预览:
+![alt文字](img.png)
+
+---
+##表格
+序号     | 名字  | 地址
+:--:|--:|:---
+1 | Sam|广州市白云区
+2 | Tom| 北京
+3 | Cate|美利坚合众国唐人街5号304房
+
+## 代码
+这是一段代码片段：`python -m SimpleHTTPServer`
+
+标记为某种语言的代码块:
+
+```python
+#-*- coding:utf-8 -*-
+#!/bin/python
+
+def hello():
+    print u\"Hello World!\"
+
+hello()
+```
+
+[注意代码开始和最后都需要空一行，否则无法 识别段落]
+目前支持的语法列表如下：
+
+* Apache
+* Awk
+* Bash
+* C#
+* C++
+* CSS
+* CoffeeScript
+* Diff
+* Dockerfile
+* HTML,
+* XML
+* HTTP
+* Ini
+* JSON
+* Java
+* JavaScript
+* Makefile
+* Markdown
+* Nginx
+* Objective-C
+* PHP
+* Perl
+* Python
+* Ruby
+* Scala
+* SQL
+* Shell
+* Session
+* VBScript
+
+
+---
+##缩进
+> 缩进
+> 缩进第二行
+>> 二级缩进
+>> 二级缩进第二行
+>>> 三级缩进
+>>> 三级缩进2
+> 缩进第三行
+> 缩进第四行
+> 测试缩进里面嵌套其它`markdown`语法
+> 添加~~**有删除线的加粗**~~
+>> 测试***倾斜的加粗***
+>> 测试**加粗并且含有`代码`**
+
+
+---
+##列表
+###无序列表（使用*/+/-三种符号均可）
+
+*   Red
+*   Green
+*   Blue
+
+###有序列表
+
+1.  Bird
+2.  McHale
+3.  Parish
+
+新的列表：
+
+2. 从2开始的有序列表。
+4. 这个地方的数字就不管用了，因为属于同一块。
+
+
+        </textarea>
+
+        <div id='preview' style="width: 45%;display: inline-block; margin-left: 50px;"></div>
+        <script src="dist/markdown.js"></script>
+        <script>
+        const html = markdown.toHtml(document.getElementById("test").innerHTML);
+        document.getElementById("preview").innerHTML = html;
+        </script>
+    </body>
+</html>
