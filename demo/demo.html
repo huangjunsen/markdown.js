@@ -4,7 +4,15 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Title Page</title>
+        <title>demo</title>
+        <style>
+code {
+    font-style: italic;
+    background: #EEE;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+        </style>
     </head>
     <body>
         <textarea id='test' style="width: 45%; height: 800px;float: left;">
@@ -36,7 +44,7 @@
 `**Bold**` 预览： **Bold**
 __好的__
 
-####斜体字:
+####斜体字(测试*斜体*):
 `*Italics*` 预览： *Italics*
 
 ####*删除线:
@@ -66,6 +74,7 @@ __好的__
 1 | Sam|广州市白云区
 2 | Tom| 北京
 3 | Cate|美利坚合众国唐人街5号304房
+4|*爱新觉罗*·*弘历*|这一行是用来==测试==含有`markdown`语法的内行的
 
 ## 代码
 这是一段代码片段：`python -m SimpleHTTPServer`
@@ -82,19 +91,18 @@ def hello():
 hello()
 ```
 
-[注意代码开始和最后都需要空一行，否则无法 识别段落]
-目前支持的语法列表如下：
+
+代码块搭配 hightlight 拥有较好的展示效果
+当前集成的 hightlight 支持的语法列表如下：
 
 * Apache
-* Awk
 * Bash
 * C#
 * C++
 * CSS
 * CoffeeScript
 * Diff
-* Dockerfile
-* HTML,
+* HTML
 * XML
 * HTTP
 * Ini
@@ -109,11 +117,8 @@ hello()
 * Perl
 * Python
 * Ruby
-* Scala
 * SQL
-* Shell
-* Session
-* VBScript
+* Django
 
 
 ---
@@ -128,7 +133,7 @@ hello()
 > 缩进第四行
 > 测试缩进里面嵌套其它`markdown`语法
 > 添加~~**有删除线的加粗**~~
->> 测试***倾斜的加粗***
+>> 测试** *倾斜的加粗* **
 >> 测试**加粗并且含有`代码`**
 
 
@@ -139,12 +144,14 @@ hello()
 *   Red
 *   Green
 *   Blue
+*   无序列表中带有`markdown`**语法**
 
 ###有序列表
 
 1.  Bird
 2.  McHale
 3.  Parish
+4.  有序列表中带有`markdown`**语法**
 
 新的列表：
 
@@ -155,10 +162,19 @@ hello()
         </textarea>
 
         <div id='preview' style="width: 45%;display: inline-block; margin-left: 50px;"></div>
-        <script src="dist/markdown.js"></script>
+
+
+
+
+
+        <!-- 插件区 -->
+        <script src="../dist/markdown.js"></script>
+        <link rel="stylesheet" href="../plugin/highlight/styles/default.css" />
+        <script src="../plugin/highlight/highlight.min.js"></script>
         <script>
         const html = markdown.toHtml(document.getElementById("test").innerHTML);
         document.getElementById("preview").innerHTML = html;
+        hljs.initHighlightingOnLoad();
         </script>
     </body>
 </html>

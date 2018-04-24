@@ -22,6 +22,13 @@
  * 1. 初始化版本。
  * 2. 可以使用 toHtml 方法将 markdown 文本转换为 html 。
  * 3. 版本号为 beta ，意味着尚在调试阶段，尚未可以正式使用。
+ * 
+ * 2018-04-24 v0.2.0
+ * 1. 使用 eslint 进行代码校验。
+ * 2. 修复嵌套或者同一行出现相同 markdown 语法导致后面的部分不能被正常识别的问题。
+ * 3. 为表格内行添加 markdown 解析。
+ * 4. 修正一些不不要的行为。
+ * 5. 版本号去除 beta ，可以正式应用。
  *
  * @author sam 2018-04
  */
@@ -49,13 +56,13 @@ const markdown = {
             }
         } catch (e) {
             console.log(e);
-            console.log('toHtml function is only accept markdown string or jquery object as param, please check your input.')
+            console.log('toHtml function is only accept markdown string or jquery object as param, please check your input.');
             obj = null;
         }
         if(!obj) return;
         // 分割成块区
         this.blocks = this.__getBlocks(obj);
-        let html = "";
+        let html = '';
         this.blocks.forEach((b) => {
             // 遍历块区，将块区转换为 html 文本。
             const h = this.__block2html(b.type, b.content);
@@ -78,7 +85,7 @@ const markdown = {
     __getBlocks: function(html) {
         const strList = html.split('\n');
         const blocks = [];
-        for (let i = 0; i < strList.length; i++) {
+        for (let i = 0;i < strList.length;i++) {
             const line = strList[i];
             const match = line.match(this.blockTypeRegExp);
             if (match) {
@@ -88,62 +95,62 @@ const markdown = {
                     type = null,
                     content = null;
                 switch (true) {
-                    case /^#{1,6}\s?/.test(m):
-                        // 标题
-                        type = 'h';
-                        break;
-                    case /^[-=]{3,}\s*$/.test(m):
-                        // 分割线
-                        type = 'hr';
-                        break;
-                    case /^[\*\-]\s/.test(m):
-                        // 无序列表，需要特殊处理
-                        type = 'ul';
-                        block = this.__getNormarBlock(strList.slice(i), new RegExp(/^[\*\-] /));
-                        if (block && block.length>0) {
-                            i += block.length;
-                        }
-                        content = block;
-                        break;
-                    case /^\d+\.\s/.test(m):
-                        // 有序列表
-                        type = 'ol';
-                        block = this.__getNormarBlock(strList.slice(i), new RegExp(/^\d+\. /));
-                        if (block && block.length>0) {
-                            i += block.length;
-                        }
-                        content = block;
-                        break;
-                    case /^(&gt;){1,6} /.test(m):
-                        // 缩进
-                        type = 'blockquote';
-                        block = this.__getNormarBlock(strList.slice(i), new RegExp(/^(&gt;){1,6} /));
-                        if (block && block.length>0) {
-                            i += block.length;
-                        }
-                        content = block;
-                        break;
-                    case /^```/.test(m):
-                        // 代码块，需要特殊处理
-                        type = 'codeBlock';
-                        block = this.__getCodeBlock(strList.slice(i));
-                        if (block && block.length>0) {
-                            // 这里的 +1 是为了跳过 ``` 这一行
-                            i += block.length+1;
-                        }
-                        content = block;
-                        break;
-                    case /^(.*\|)+.*$/.test(m):
-                        // 表格
-                        type = 'table';
-                        block = this.__getNormarBlock(strList.slice(i), new RegExp(/^(.*?\|)+.*$/));
-                        if (block && block.length>0) {
-                            i += block.length;
-                        }
-                        content = block;
-                        break;
-                    default:
-                        break;
+                case /^#{1,6}\s?/.test(m):
+                    // 标题
+                    type = 'h';
+                    break;
+                case /^[-=]{3,}\s*$/.test(m):
+                    // 分割线
+                    type = 'hr';
+                    break;
+                case /^[\*\-]\s/.test(m):
+                    // 无序列表，需要特殊处理
+                    type = 'ul';
+                    block = this.__getNormarBlock(strList.slice(i), new RegExp(/^[\*\-] /));
+                    if (block && block.length>0) {
+                        i += block.length;
+                    }
+                    content = block;
+                    break;
+                case /^\d+\.\s/.test(m):
+                    // 有序列表
+                    type = 'ol';
+                    block = this.__getNormarBlock(strList.slice(i), new RegExp(/^\d+\. /));
+                    if (block && block.length>0) {
+                        i += block.length;
+                    }
+                    content = block;
+                    break;
+                case /^(&gt;){1,6} /.test(m):
+                    // 缩进
+                    type = 'blockquote';
+                    block = this.__getNormarBlock(strList.slice(i), new RegExp(/^(&gt;){1,6} /));
+                    if (block && block.length>0) {
+                        i += block.length;
+                    }
+                    content = block;
+                    break;
+                case /^```/.test(m):
+                    // 代码块，需要特殊处理
+                    type = 'codeBlock';
+                    block = this.__getCodeBlock(strList.slice(i));
+                    if (block && block.length>0) {
+                        // 这里的 +1 是为了跳过 ``` 这一行
+                        i += block.length+1;
+                    }
+                    content = block;
+                    break;
+                case /^(.*\|)+.*$/.test(m):
+                    // 表格
+                    type = 'table';
+                    block = this.__getNormarBlock(strList.slice(i), new RegExp(/^(.*?\|)+.*$/));
+                    if (block && block.length>0) {
+                        i += block.length;
+                    }
+                    content = block;
+                    break;
+                default:
+                    break;
                 }
                 if (!content) content = line;
                 if (type) {
@@ -164,7 +171,7 @@ const markdown = {
                     blocks.push({type: 'br'});
                 }
             }
-        };
+        }
         return blocks;
     },
     /**
@@ -175,7 +182,7 @@ const markdown = {
      */
     __getNormarBlock: function(strList, regExp) {
         const block = [];
-        for (let i = 0; i < strList.length; i++) {
+        for (let i = 0;i < strList.length;i++) {
             let line = strList[i];
             if (/^$/.test(line)) {
                 // 退出条件 1 ： 空行
@@ -187,7 +194,7 @@ const markdown = {
                 // 退出条件 2 ： 规则不匹配
                 break;
             }
-        };
+        }
         return block;
     },
     /**
@@ -199,7 +206,7 @@ const markdown = {
     __getCodeBlock: function(strList) {
         let blockEnd = false;
         const codeBlock = [];
-        for (let i = 0; i < strList.length; i++) {
+        for (let i = 0;i < strList.length;i++) {
             let line = strList[i];
             if (/^```[\s]*$/.test(line)){
                 // 退出条件
@@ -208,7 +215,7 @@ const markdown = {
                 break;
             }
             codeBlock.push(line);
-        };
+        }
         if (!blockEnd) {
             return null;
         }
@@ -217,7 +224,7 @@ const markdown = {
     /** 获取段落块 */
     __getSectionBlock: function(strList) {
         const block = [];
-        for (let i = 0; i < strList.length; i++) {
+        for (let i = 0;i < strList.length;i++) {
             let line = strList[i];
             if (/^$/.test(line)) {
                 // 退出条件 1 ： 空行
@@ -228,7 +235,7 @@ const markdown = {
                 break;
             }
             block.push(line);
-        };
+        }
         return block;
     },
     /**
@@ -242,119 +249,131 @@ const markdown = {
         let subHtml = '';
         let m = null;
         switch (type) {
-            case 'br':
-                html = '<br />';
+        case 'br': {
+            html = '<br />';
+            break;
+        }
+        case 'p': {
+            subHtml = this.__getSubHtml(content);
+            html = `<p>${subHtml.join('<br />')}</p>`;
+            break;
+        }
+        case 'h': {
+            m = content.match(/^(#{1,6})\s*(.*?)\s*$/);
+            if (!m || !m[1]) {
+                console.log('header format error');
                 break;
-            case 'p':
-                subHtml = this.__getSubHtml(content);
-                html = `<p>${subHtml.join('<br />')}</p>`;
-                break;
-            case 'h':
-                m = content.match(/^(#{1,6})\s*(.*?)\s*$/);
-                if (!m || !m[1]) {
-                    console.log('header format error');
-                    break;
+            }
+            const tag = `h${m[1].length}`;
+            subHtml = this.__getSubHtml([m[2]]);
+            html = `<${tag}>${subHtml.join('')}</${tag}>`;
+            break;
+        }
+        case 'hr': {
+            html = '<hr />';
+            break;
+        }
+        case 'ul': {
+            const ulList = [];
+            content.forEach((c) => {
+                m = c.match(/^([\*\-])\s+(.*?)\s*$/);
+                ulList.push(m[2]);
+            });
+            subHtml = this.__getSubHtml(ulList);
+            html = `<ul><li>${subHtml.join('</li><li>')}</li></ul>`;
+            break;
+        }
+        case 'ol': {
+            const olList = [];
+            let start = null;
+            content.forEach((c) => {
+                m = c.match(/^(\d+\.)\s+(.*?)\s*$/);
+                if (!start) {
+                    start = m[1].replace(/\./g, '');
                 }
-                const tag = `h${m[1].length}`;
-                html = `<${tag}>${m[2]}</${tag}>`;
-                break;
-            case 'hr':
-                html = '<hr />';
-                break;
-            case 'ul':
-                const ulList = [];
-                content.forEach((c) => {
-                    m = c.match(/^([\*\-])\s+(.*?)\s*$/);
-                    ulList.push(m[2]);
-                });
-                subHtml = this.__getSubHtml(ulList);
-                html = `<ul><li>${subHtml.join('</li><li>')}</li></ul>`;
-                break;
-            case 'ol':
-                const olList = [];
-                let start = null;
-                content.forEach((c) => {
-                    m = c.match(/^(\d+\.)\s+(.*?)\s*$/);
-                    if (!start) {
-                        start = m[1].replace(/\./g, '');
-                    }
-                    olList.push(m[2]);
-                });
-                // 有序列表有可能指定了第一个（开始）数字
-                let startStr = '';
-                if (start != 1) {
-                    startStr = ` start="${start}"`;
-                }
-                html = `<ol${startStr}><li>${olList.join('</li><li>')}</li></ol>`;
-                break;
-            case 'table':
-                // 表格的代码有点复杂
-                const thList = [],
-                      trList = [],
-                      alignList = [];
-                let bodyFlag = false;
-                // 遍历整个块区
-                content.forEach((t) => {
-                    m = t.match(/^(\s*:?-{2,6}:?\s*\|)+\s*:?-{2,6}:?\s*$/);
-                    if (m) {
-                        // 表格表头表体分割线
-                        t.split('|').forEach((a) => {
-                            if (/^\s*:-{2,6}\s*$/.test(a)) {
-                                alignList.push('left');
-                            } else if (/^\s*-{2,6}:\s*$/.test(a)) {
-                                alignList.push('right');
-                            } else if (/^\s*:-{2,6}:\s*$/.test(a)) {
-                                alignList.push('center');
-                            } else {
-                                alignList.push('');
-                            }
-                        });
-                        bodyFlag = true;
-                    }else{
-                        // 不是分割线的时候，判断一下是否已经经过了分割线，来录入不同的数组
-                        let tag = 'th';
-                        if (bodyFlag) tag = 'td';
-                        const tdList = [];
-                        t.split('|').forEach((td) => {
-                            tdList.push(td.trim());
-                        });
-                        for (var i = 0; i < tdList.length; i++) {
-                            tdList[i] = `<${tag} align="${alignList[i]}">${tdList[i]}</${tag}>`;
-                        };
-                        if (bodyFlag) {
-                            trList.push(tdList.join(''));
+                olList.push(m[2]);
+            });
+            subHtml = this.__getSubHtml(olList);
+            // 有序列表有可能指定了第一个（开始）数字
+            let startStr = '';
+            if (start != 1) {
+                startStr = ` start="${start}"`;
+            }
+            html = `<ol${startStr}><li>${subHtml.join('</li><li>')}</li></ol>`;
+            break;
+        }
+        case 'table': {
+            // 表格的代码有点复杂
+            const thList = [],
+                trList = [],
+                alignList = [];
+            let bodyFlag = false;
+            // 遍历整个块区
+            content.forEach((t) => {
+                m = t.match(/^(\s*:?-{2,6}:?\s*\|)+\s*:?-{2,6}:?\s*$/);
+                if (m) {
+                    // 表格表头表体分割线
+                    t.split('|').forEach((a) => {
+                        if (/^\s*:-{2,6}\s*$/.test(a)) {
+                            alignList.push('left');
+                        } else if (/^\s*-{2,6}:\s*$/.test(a)) {
+                            alignList.push('right');
+                        } else if (/^\s*:-{2,6}:\s*$/.test(a)) {
+                            alignList.push('center');
                         } else {
-                            // 由于此时尚未获得 align 属性，先保存为 td 数组
-                            thList.push(tdList);
+                            alignList.push('');
                         }
+                    });
+                    bodyFlag = true;
+                }else{
+                    // 不是分割线的时候，判断一下是否已经经过了分割线，来录入不同的数组
+                    let tag = 'th';
+                    if (bodyFlag) tag = 'td';
+                    const tdList = [];
+                    t.split('|').forEach((td) => {
+                        tdList.push(td.trim());
+                    });
+                    for (let i = 0;i < tdList.length;i++) {
+                        subHtml = this.__getSubHtml([tdList[i]]);
+                        tdList[i] = `<${tag} align="${alignList[i]}">${subHtml.join('')}</${tag}>`;
                     }
-                });
-                // 修正 thList 的 align 属性
-                for (var i = 0; i < thList.length; i++) {
-                    for (var j = 0; j < thList[i].length; j++) {
-                        let obj = document.createElement("tr");
-                        obj.innerHTML = thList[i][j];
-                        if (alignList[j]) obj.childNodes[0].setAttribute('align', alignList[j]);
-                        thList[i][j] = obj.innerHTML;
-                    };
-                    thList[i] = thList[i].join('');
-                };
-                html = '<table><thead>'
+                    if (bodyFlag) {
+                        trList.push(tdList.join(''));
+                    } else {
+                        // 由于此时尚未获得 align 属性，先保存为 td 数组
+                        thList.push(tdList);
+                    }
+                }
+            });
+            // 修正 thList 的 align 属性
+            for (let i = 0;i < thList.length;i++) {
+                for (let j = 0;j < thList[i].length;j++) {
+                    let obj = document.createElement('tr');
+                    obj.innerHTML = thList[i][j];
+                    if (alignList[j]) obj.childNodes[0].setAttribute('align', alignList[j]);
+                    thList[i][j] = obj.innerHTML;
+                }
+                thList[i] = thList[i].join('');
+            }
+            html = '<table><thead>'
                     + `<tr>${thList.join('</tr><tr>')}</tr>`
                     + '</thead><tbody>'
                     + `<tr>${trList.join('</tr><tr>')}</tr>`
                     + '</tbody></table>';
-                break;
-            case 'codeBlock':
-                m = content[0].match(/^```(.*?)\s*$/);
-                const codeClass = m?m[1]:'';
-                html = `<pre class="${codeClass}"><code>\n${content.slice(1).join('\n')}\n</code></pre>`;
-                break;
-            case 'blockquote':
-                // 缩进，这个是个特殊的段落块区，比较复杂，需要递归
-                const blockQuoteList = this.__dealBlockQuote(content);
-                html = `<blockquote><p>${blockQuoteList.join('</p><p>')}</p></blockquote>`;
-                break;
+            break;
+        }
+        case 'codeBlock': {
+            m = content[0].match(/^```(.*?)\s*$/);
+            const codeClass = m?m[1]:'';
+            html = `<pre><code class="${codeClass}">${content.slice(1).join('\n')}\n</code></pre>`;
+            break;
+        }
+        case 'blockquote': {
+            // 缩进，这个是个特殊的段落块区，比较复杂，需要递归
+            const blockQuoteList = this.__dealBlockQuote(content);
+            html = `<blockquote><p>${blockQuoteList.join('</p><p>')}</p></blockquote>`;
+            break;
+        }
         }
         return html;
     },
@@ -370,149 +389,117 @@ const markdown = {
         strList.forEach((line) => {
             const match = line.match(this.innerTypeRegExp);
             if (match) {
-                let subMatch = null,
-                    flag = 0,
+                let flag = 0,
                     beforeStr = '',
                     innerStr = '',
                     afterStr = '';
-                if (match.indexOf('`')>=0) {
-                    // 如果含有 inlineCode ，优先进行处理
-                    // 因为 inlineCode 是不进行子编码的
-                    for (var i = 0; i < line.length; i++) {
-                        if (line[i] === '`' && (i===0 || (i>0 && line[i-1] !== '\\'))) {
-                            flag++;
-                            continue;
-                        }
-                        switch (flag) {
-                            case 0: beforeStr += line[i]; break;
-                            case 1: innerStr += line[i]; break;
-                            case 2: afterStr += line[i]; break;
-                        }
-                    };
+                const m = match[0];
+                let beforeHtml,afterHtml,url;
+                switch (m) {
+                case '`': {
+                    htmlList.push(this.__dealInlineBlock(line, '`', 'code'));
+                    break;
+                }
+                case '&lt;': {
+                    // 处理自动 url ，这是一个特殊的逻辑
+                    const urlMatch = line.match(new RegExp(/(.*?)(?=[^\\])&lt;(.*?)(?=[^\\])&gt;(.*)/));
+                    if (urlMatch) {
+                        beforeStr = urlMatch[1];
+                        innerStr = urlMatch[2];
+                        afterStr = urlMatch[3];
+                    } else {
+                        beforeStr = line;
+                    }
                     // 递归调用
-                    let beforeHtml = beforeStr;
+                    beforeHtml = beforeStr;
                     if (beforeStr.match(this.innerTypeRegExp)) {
                         beforeHtml = this.__getSubHtml([beforeStr])[0];
                     }
-                    let afterHtml = afterStr;
+                    afterHtml = afterStr;
                     if (afterStr.match(this.innerTypeRegExp)) {
                         afterHtml = this.__getSubHtml([afterStr])[0];
                     }
-                    htmlList.push(`${beforeHtml}<code>${innerStr}</code>${afterHtml}`);
-                } else {
-                    const m = match[0];
-                    let beforeHtml,afterHtml,url;
-                    switch (m) {
-                        case '&lt;':
-                            // 处理自动 url ，这是一个特殊的逻辑
-                            for (var i = 0; i < line.length; i++) {
-                                if (flag < 2 && /\&lt;|\&gt;/.test(line.slice(i, i+4)) && (i===0 || (i>0 && line[i-1] !== '\\'))) {
-                                    flag++;
-                                    i += 3;
-                                    continue;
-                                }
-                                switch (flag) {
-                                    case 0: beforeStr += line[i]; break;
-                                    case 1: innerStr += line[i]; break;
-                                    case 2: afterStr += line[i]; break;
-                                }
-                            };
-                            // 递归调用
-                            beforeHtml = beforeStr;
-                            if (beforeStr.match(this.innerTypeRegExp)) {
-                                beforeHtml = this.__getSubHtml([beforeStr])[0];
-                            }
-                            afterHtml = afterStr;
-                            if (afterStr.match(this.innerTypeRegExp)) {
-                                afterHtml = this.__getSubHtml([afterStr])[0];
-                            }
-                            url = null;
-                            if (/^((ftp)|(https?)|(mailto):\/\/)/.test(innerStr)) {
-                                url = innerStr;
-                            }
-                            if (url) {
-                                htmlList.push(`${beforeHtml}<a href="${url}">${innerStr}</a>${afterHtml}`)
-                            } else {
-                                // 如果不能命中 ftp/http(s)/mailto 这三种类型的链接，那么认为这不是一个自动 url
-                                htmlList.push(`${beforeHtml}<${innerStr}>${afterHtml}`);
-                            }
-                            break;
-                        case '](':
-                            // 处理图片和链接 ，这是一个特殊的逻辑
-                            let innerStr1 = '', innerStr2 = '', isImg = false;
-                            for (var i = 0; i < line.length; i++) {
-                                if (line[i]+line[i+1] === '![' && (i===0 || (i>0 && line[i-1] !== '\\'))) {
-                                    // 图片开始
-                                    flag = 1;
-                                    isImg = true;
-                                    i++;
-                                    continue;
-                                }
-                                if (line[i] === '[' && (i===0 || (i>0 && /[^!\\]/.test(line[i-1])))) {
-                                    // 链接开始
-                                    flag = 1;
-                                    continue;
-                                }
-                                if (line[i]+line[i+1] === '](' && (i===0 || (i>0 && line[i-1] !== '\\'))) {
-                                    // 描述结束， url 开始
-                                    flag = 2;
-                                    i++;
-                                    continue;
-                                }
-                                if (line[i] === ')' && (i===0 || (i>0 && /[^!\\]/.test(line[i-1])))) {
-                                    // 图片/链接结束
-                                    flag = 3;
-                                    continue;
-                                }
-                                switch (flag) {
-                                    case 0: beforeStr += line[i]; break;
-                                    case 1: innerStr1 += line[i]; break;
-                                    case 2: innerStr2 += line[i]; break;
-                                    case 3: afterStr += line[i]; break;
-                                }
-                            };
-                            // 递归调用
-                            beforeHtml = beforeStr;
-                            if (beforeStr.match(this.innerTypeRegExp)) {
-                                beforeHtml = this.__getSubHtml([beforeStr])[0];
-                            }
-                            afterHtml = afterStr;
-                            if (afterStr.match(this.innerTypeRegExp)) {
-                                afterHtml = this.__getSubHtml([afterStr])[0];
-                            }
-                            url = null;
-                            if (innerStr2) {
-                                url = innerStr2;
-                            }
-                            if (url) {
-                                if (isImg) {
-                                    htmlList.push(`${beforeHtml}<img src="${url}" alt="${innerStr1}" />${afterHtml}`);
-                                } else {
-                                    htmlList.push(`${beforeHtml}<a href="${url}">${innerStr1}</a>${afterHtml}`);
-                                }
-                            } else {
-                                // 如果不能命中 ftp/http(s)/mailto 这三种类型的链接，那么认为这不是一个自动 url
-                                htmlList.push(`${beforeHtml}[${innerStr1}](${innerStr2})${afterHtml}`);
-                            }
-                            break;
-                        case '~~':
-                            htmlList.push(this.__dealInlineBlock(line, '~~', 's'));
-                            break;
-                        case '==':
-                            htmlList.push(this.__dealInlineBlock(line, '==', 'mark'));
-                            break;
-                        case '**':
-                            htmlList.push(this.__dealInlineBlock(line, '**', 'b'));
-                            break;
-                        case '__':
-                            htmlList.push(this.__dealInlineBlock(line, '__', 'b'));
-                            break;
-                        case '*':
-                            htmlList.push(this.__dealInlineBlock(line, '*', 'i'));
-                            break;
-                        default:
-                            break;
+                    url = null;
+                    if (/^((ftp)|(https?)|(mailto):\/\/)/.test(innerStr)) {
+                        // 仅这三（四）中开头的 url 能被识别
+                        url = innerStr;
                     }
+                    if (url) {
+                        htmlList.push(`${beforeHtml}<a href="${url}">${innerStr}</a>${afterHtml}`);
+                    } else {
+                        // 如果不能命中 ftp/http(s)/mailto 这三种类型的链接，那么认为这不是一个自动 url
+                        htmlList.push(`${beforeHtml}<${innerStr}>${afterHtml}`);
+                    }
+                    break;
+                }
+                case '](': {
+                    // 处理图片和链接 ，这是一个特殊的逻辑
+                    let innerStr1 = '', innerStr2 = '', isImg = false;
+                    const ImgMatch = line.match(new RegExp(/(.*?)(?=[^\\])!\[(.*?)(?=[^\\])\]\((.*?)(?=[^\\])\)(.*)/));
+                    const urlMatch = line.match(new RegExp(/(.*?)(?=[^\\])\[(.*?)(?=[^\\])\]\((.*?)(?=[^\\])\)(.*)/));
+                    if (ImgMatch) {
+                        beforeStr = ImgMatch[1];
+                        innerStr1 = ImgMatch[2];
+                        innerStr2 = ImgMatch[3];
+                        afterStr = ImgMatch[4];
+                        isImg = true;
+                    } else if (urlMatch) {
+                        beforeStr = urlMatch[1];
+                        innerStr1 = urlMatch[2];
+                        innerStr2 = urlMatch[3];
+                        afterStr = urlMatch[4];
+                    } else {
+                        beforeStr = line;
+                        innerStr1 = innerStr2 = afterStr = '';
+                    }
+                    // 递归调用
+                    beforeHtml = beforeStr;
+                    if (beforeStr.match(this.innerTypeRegExp)) {
+                        beforeHtml = this.__getSubHtml([beforeStr])[0];
+                    }
+                    afterHtml = afterStr;
+                    if (afterStr.match(this.innerTypeRegExp)) {
+                        afterHtml = this.__getSubHtml([afterStr])[0];
+                    }
+                    url = null;
+                    if (innerStr2) {
+                        url = innerStr2;
+                    }
+                    if (url) {
+                        if (isImg) {
+                            htmlList.push(`${beforeHtml}<img src="${url}" alt="${innerStr1}" />${afterHtml}`);
+                        } else {
+                            htmlList.push(`${beforeHtml}<a href="${url}">${innerStr1}</a>${afterHtml}`);
+                        }
+                    } else {
+                        // 如果不能命中 ftp/http(s)/mailto 这三种类型的链接，那么认为这不是一个自动 url
+                        htmlList.push(`${beforeHtml}[${innerStr1}](${innerStr2})${afterHtml}`);
+                    }
+                    break;
+                }
+                case '~~': {
+                    htmlList.push(this.__dealInlineBlock(line, '~~', 's', true));
+                    break;
+                }
+                case '==': {
+                    htmlList.push(this.__dealInlineBlock(line, '==', 'mark', true));
+                    break;
+                }
+                case '**': {
+                    htmlList.push(this.__dealInlineBlock(line, '\\*\\*', 'b', true));
+                    break;
+                }
+                case '__': {
+                    htmlList.push(this.__dealInlineBlock(line, '__', 'b', true));
+                    break;
+                }
+                case '*': {
+                    htmlList.push(this.__dealInlineBlock(line, '\\*', 'i', true));
+                    break;
+                }
+                default: {
+                    break;
+                }
                 }
             } else {
                 htmlList.push(line);
@@ -520,37 +507,30 @@ const markdown = {
         });
         return htmlList;
     },
-    __dealInlineBlock: function(line, matchStr, type) {
-        let flag = 0,
-            beforeStr = '',
-            innerStr = '',
-            afterStr = '';
-        for (var i = 0; i < line.length; i++) {
-            if (matchStr.length === 2){
-                if (line[i]+line[i+1] === matchStr && (i===0 || (i>0 && line[i-1] !== '\\'))) {
-                    flag++;
-                    i++;
-                    continue;
-                }
-            } else {
-                if (line[i] === matchStr && (i===0 || (i>0 && line[i-1] !== '\\'))) {
-                    flag++;
-                    continue;
-                }
-            }
-            switch (flag) {
-                case 0: beforeStr += line[i]; break;
-                case 1: innerStr += line[i]; break;
-                case 2: afterStr += line[i]; break;
-            }
-        };
+    /**
+     * 处理行内 markdown 语法
+     * 含有递归
+     * 
+     * @param line      文本行
+     * @param matchStr  锚定正则规则，注意了，这里必须使用转义过后的正则锚
+     * @param type      该正则用于替换的 html tag （标签）
+     * @param dealInner 可选，默认为false，即不继续递归两个锚中间的字符串
+     */
+    __dealInlineBlock: function(line, matchStr, type, dealInner) {
+        const match = line.match(new RegExp(`(.*?)(?=[^\\\\])${matchStr}(.*?)(?=[^\\\\])${matchStr}(.*)`));
+        if (!match) {
+            return line;
+        }
+        const beforeStr = match[1];
+        const innerStr = match[2];
+        const afterStr = match[3];
         // 递归调用
         let beforeHtml = beforeStr;
         if (beforeStr.match(this.innerTypeRegExp)) {
             beforeHtml = this.__getSubHtml([beforeStr])[0];
         }
         let innerHtml = innerStr;
-        if (innerStr.match(this.innerTypeRegExp)) {
+        if (dealInner && innerStr.match(this.innerTypeRegExp)) {
             innerHtml = this.__getSubHtml([innerStr])[0];
         }
         let afterHtml = afterStr;
@@ -562,14 +542,14 @@ const markdown = {
     /** 处理缩进段落 */
     __dealBlockQuote: function(strList) {
         const htmlList = [];
-        for (var i = 0; i < strList.length; i++) {
+        for (let i = 0;i < strList.length;i++) {
             const m = strList[i].match(/^(&gt;)\s*(.*?)\s*$/);
             const sm = m[2].match(/^(&gt;)\s*(.*?)\s*$/);
             if (sm) {
                 // 进入递归
                 const subStrList = [];
                 const tmpList = strList.slice(i);
-                for (var j = 0; j < tmpList.length; j++) {
+                for (let j = 0;j < tmpList.length;j++) {
                     const s = tmpList[j];
                     if (/^&gt;&gt;/.test(s)) {
                         // 至少要有两个 > 才有资格进入递归
@@ -578,7 +558,7 @@ const markdown = {
                     } else {
                         break;
                     }
-                };
+                }
                 const subList = this.__dealBlockQuote(subStrList);
                 htmlList.push(`<blockquote><p>${subList.join('</p><p>')}</p></blockquote>`);
                 // 注意，此处跳过的行数应该是子 blockquote 行数，
@@ -589,7 +569,7 @@ const markdown = {
                 const html = this.__getSubHtml([m[2]]);
                 htmlList.push(html);
             }
-        };
+        }
         return htmlList;
     }
 };
