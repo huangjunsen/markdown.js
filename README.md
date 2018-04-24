@@ -43,7 +43,7 @@ const htmlStr = markdown.toHtml(markdownStr);
 无  
   
 ## 注意事项  
-目前为 beta 版本，意味着尚在调试阶段，尚未可以正式使用。  
+暂无  
   
 ## 关于创作：  
 markdown 已经被全球广泛使用这么多年了，我这个时候写的 markdown.js 怎么可能是原创的呢？  
