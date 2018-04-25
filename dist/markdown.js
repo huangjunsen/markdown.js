@@ -68,6 +68,14 @@ const markdown = {
             const h = this.__block2html(b.type, b.content);
             html += h;
         });
+        // 这个做一个特殊的动作，如果这个 html 仅含有一个 p 标签，并且其子 dom 只有一个的情况下，将只返回子 dom 。
+        const tempDom = document.createElement('div');
+        tempDom.innerHTML = html;
+        if (html && tempDom.childNodes && tempDom.childNodes.length === 1 && tempDom.childNodes[0].tagName.toLowerCase() === 'p'
+        && tempDom.childNodes[0].childNodes.length === 1) {
+            html = tempDom.childNodes[0].innerHTML;
+        }
+        // 返回
         return html;
     },
     /**
@@ -204,15 +212,25 @@ const markdown = {
      * @return codeBlock 含 ```<language> 不含结尾 ``` 的代码块
      */
     __getCodeBlock: function(strList) {
-        let blockEnd = false;
+        let blockEnd = false,
+            flag = false;
         const codeBlock = [];
         for (let i = 0;i < strList.length;i++) {
             let line = strList[i];
-            if (/^```[\s]*$/.test(line)){
-                // 退出条件
-                // 所以要求不能嵌套代码
-                blockEnd = true;
-                break;
+            if (/^```\S+\s*$/.test(line)) {
+                // 如果命中了代码块开头
+                flag = true;
+            } else if (/^```\s*$/.test(line)){
+                // 或者命中了```，不带任何语言标记的
+                // 检查是否已经命中过一次了，如果是，就退出
+                // 不然，认定为命中过一次
+                if (flag) {
+                    // 退出条件
+                    // 所以要求不能嵌套代码
+                    blockEnd = true;
+                    break;
+                }
+                flag = true;
             }
             codeBlock.push(line);
         }
@@ -363,7 +381,7 @@ const markdown = {
             break;
         }
         case 'codeBlock': {
-            m = content[0].match(/^```(.*?)\s*$/);
+            m = content[0]?content[0].match(/^```(.*?)\s*$/):'';
             const codeClass = m?m[1]:'';
             html = `<pre><code class="${codeClass}">${content.slice(1).join('\n')}\n</code></pre>`;
             break;

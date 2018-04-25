@@ -6,81 +6,204 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>demo</title>
         <style>
+body {
+    margin: 20px 0 0;
+    padding: 0;
+    font-size: 14px;
+}
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+h1 {font-size: 24px;}
+h2 {font-size: 22px;}
+h3 {font-size: 20px;}
+h4 {font-size: 18px;}
+h5 {font-size: 16px;}
+h6 {font-size: 14px;}
+input, textarea {
+    background-color: #fff;
+    background-image: none;
+    border-radius: 4px;
+    border: 1px solid #dcdfe6;
+    box-sizing: border-box;
+    color: #606266;
+    display: inline-block;
+    font-size: inherit;
+    height: 40px;
+    line-height: 40px;
+    /* outline: none; */
+    padding: 0 15px;
+    transition: border-color .2s cubic-bezier(.645,.045,.355,1);
+    width: 180px;
+}
+textarea {
+    line-height: 20px;
+}
 code {
-    font-style: italic;
+    /* font-style: italic; */
     background: #EEE;
     margin-left: 2px;
     margin-right: 2px;
+    font-size: 12px;
+}
+table {
+    border: none;
+}
+table tbody tr {
+    background: #FFF;
+}
+table tbody tr:nth-child(odd) {
+    background: #FAFAFA;
+}
+table th, table td {
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-bottom: 1px solid #ebeef5;
+}
+table th {
+    color: #909399;
+    width: 100px;
+}
+ul li, ol li, p, div {
+    margin-bottom: 10px;
 }
         </style>
     </head>
     <body>
-        <textarea id='test' style="width: 45%; height: 2200px;float: left;">
-# MarkDown 文本转换
+        <div style="text-align: center;">
+            <h1>markdown.js demo</h1>
+        </div>
+        <div style="margin: 20px;">
+            <h2>文本样式</h2>
+            <div style="margin-left: 20px;">
+                <h3>文章级别</h3>
+                <p>
+                    语法： 由若干个#号+文字组成标题；标题中可以含有[斜体][删除线][高亮][链接]等内容。<br>
+                    附加： 标准markdown语法要求#号后面必须紧跟一个空格。本脚本并不做这样的要求，因此兼容标准语法的同时更灵活。<br>
+                    注意： 本脚本默认认为传入的markdown字符串是一个多段落文本，因此，如果传入的是一个单行的markdown字符串，那么将会多产生一个 p 标签。<br>
+                    不过不用担心，在当前的版本中，已经针对这个情况进行了优化： 如果返回的html仅含有一个 p 标签，并且其子dom只有一个的情况下，将只返回子dom。<br>
+                    针对段落，特别说明一下，默认情况下，如果不能命中 “标题、(有序/无序)列表、代码块、缩进、表格” 这几种块区格式的话，则会认为是普通段落，将会以 p 标签围起来。<br>
+                    而空行，或者说分行，并不需要非常弱智地在行末加上两个空格（如果加上了，我会去掉）。空行就会识别为空行，回车就会识别为&lt;br/&gt;。
+                </p>
+                <textarea name="head">
+#一级标题
+## 二级标题
+###三级标题
+####四级标题
+#####五级标题
+正文</textarea>
+                <div>预览：</div>
+                <div id="head"></div>
+                <hr>
+                <h3>链接</h3>
+                <p>
+                    语法： [链接文字](url) 来添加链接。<br>
+                    附加： 链接涉及的情况比较多，图片和链接一样，不同的链接具有不同的相对情况。<br>
+                    点子： 第一种url可以实现一半的页面锚定的效果喔。
+                    <ul>
+                        <li>
+                            不添加http头，则是相对于当前页面的url：
+                            <input type="text" name="url1" value="[相对当前页面的url](url1)">
+                            <span>预览：</span>
+                            <span id="url1"></span>
+                        </li>
+                        <li>
+                            不添加http头，但以/开头，则是相对于本站点的url：
+                            <input type="text" name="url2" value="[相对于站点的url](/url2)">
+                            <span>预览：</span>
+                            <span id="url2"></span>
+                        </li>
+                        <li>
+                            添加http头，则是绝对url：
+                            <input type="text" name="url3" style="width: 300px;" value="[绝对url，外链](https://www.alibaba.com/)">
+                            <span>预览：</span>
+                            <span id="url3"></span>
+                        </li>
+                    </ul>
+                </p>
+                <hr>
+                <h3>图片</h3>
+                <p>
+                    语法： ![alt文字](url) 来添加图片。<br>
+                    附加： 图片涉及的情况比较多，图片和链接一样，不同的链接具有不同的相对情况，此处不再过多描述。
+                    展望： 后续打算为图片增加设置高宽的方法。
+                </p>
+                <p>
+                    <input type="text" name="img" value="![alt文字](img.png)">
+                    <div>预览：</div>
+                    <div id="img"></div>
+                </p>
+                <hr>
+                <h3>字体格式</h3>
+                <p>
+                    语法： **加粗** __加粗__ *斜体* ~~删除线~~ ==高亮==。<br>
+                    附加： 这几个字体格式都可以混合使用，例如加粗+斜体，高亮+删除线+斜体等。<br>
+                    注意： 混用的时候，由于斜体和加粗都使用了*号，如果两个混在一起，建议使用 __ 搭配 * 使用，如果一定要用 *，那么相应添加一个空格即可，如下面示例。<br>
+                    展望： 原生markdown并不支持下划线，有点遗憾。
+                </p>
+                <p>
+                    <input type="text" name="fontStyle" style="width: 800px"
+                    value="**加粗1** __加粗2__ *斜体* ~~删除线~~ ==高亮== ** *加粗斜体1* ** *__加粗斜体2__* ==~~*高亮删除线斜体*~~==">
+                    <div>预览：</div>
+                    <div id="fontStyle"></div>
+                </p>
+            </div>
+            <hr>
 
----
-##文本样式
-####文章级别
-`#一级标题`
-`## 二级标题`
-`###三级标题`
-`####四级标题`
-`#####五级标题`
-`正文`
-[由于避免和本文标题冲突，因此不展示预览]
-
-####链接 :
-* 不添加http头，则是相对于当前页面的url： `[链接文字](url)` 预览： [链接文字](url)
-* 不添加http头，但以/开头，则是相对于本站点的url： `[链接文字](/url)` 预览： [链接文字](/url)
-* 添加http头，则是绝对url： `[链接文字](http://url)` 预览： [链接文字](http://url)
-
-[以上针对url的内容运用到图片中也是一样的]
-
-* 自动url： `<ftp://url>` 预览: <ftp://url>, <mailto://123@abc.com>, <http://url>, <这不是链接>
-
-[自动url可以适配https/ftp/mailto三种类型开头的url]
-
-####加粗:
-`**Bold**` 预览： **Bold**
-__好的__
-
-####斜体字(测试*斜体*):
-`*Italics*` 预览： *Italics*
-
-####*删除线:
-`~~text~~` 预览: ~~text~~
-
-####* 高亮:
-`==text==` 预览: ==text==
-
-####段落:
-不带特殊块区标记的内容都被视为段落
-
-####换行符:
-[空行]
-
-
-
----
-##图片
-`![alt文字](img.png)`
-预览:
-![alt文字](img.png)
-
----
-##表格
+            <h2>表格</h2>
+            <p>
+                关于表格，又是一个比较复杂的话题。<br>
+                语法： 连续的1~N行具有相同个|的行认为是表格。整个行中都是使用2~6条短横线作为单元格内容的行将认为是thead与tbody分割行。<br>
+                注意： 如果不含有分割行，则整个表格都会落入thead中，因此，如果没有head，请在第一行就添加分割行。<br>
+                分割行可以使用:进行左中右的对齐，:--: 表示居中对齐，:-- 表示左对齐，--: 表示右对齐。<br>
+                单元格内允许添加行内markdown语法，例如代码行、加粗、斜体等等。
+            </p>
+            <textarea name="table" style="width: 600px;">
 序号     | 名字  | 地址
-:--:|--:|:---
+:--|:--:|---:
 1 | Sam|广州市白云区
 2 | Tom| 北京
 3 | Cate|美利坚合众国唐人街5号304房
-4|*爱新觉罗*·*弘历*|这一行是用来==测试==含有`markdown`语法的内行的
+4|*爱新觉罗*·*弘历*|这一行是用来==测试==含有`markdown`语法的内行的</textarea>
+            <div>预览：</div>
+            <div id="table"></div>
+            <hr>
 
-## 代码
-这是一段代码片段：`python -m SimpleHTTPServer`
-
-标记为某种语言的代码块:
-
+            <h2>代码</h2>
+            <div style="margin-left: 20px;">
+                <h3>行内代码</h3>
+                <p>
+                    语法： 使用两个`引用起来的内容，认为是行内代码。<br>
+                    注意： 行内代码里面的内容不会进行markdown语法解析
+                </p>
+                <p>
+                    这是一段代码片段：
+                    <input type="text" name="code1" style="width: 250px;" value="`python -m SimpleHTTPServer`">
+                    <span>预览：</span>
+                    <span id="code1"></span>
+                </p>
+                <p>
+                    嵌套了markdown也不会解析：
+                    <input type="text" name="code2" style="width: 250px;" value="`其实我想要**加粗**的效果`">
+                    <span>预览：</span>
+                    <span id="code2"></span>
+                </p>
+                <hr>
+                <h3>代码块</h3>
+                <p>
+                    语法： 使用两个```引用起来的内容，认为是代码块。<br>
+                    注意： 行内代码里面的内容不会进行markdown语法解析。<br>
+                    代码块搭配 hightlight 拥有较好的展示效果。<br>
+                    当前集成的 hightlight 支持的语法列表如下：<br>
+                    Apache,Bash,C#,C++,CSS,CoffeeScript,Diff,HTML,XML,HTTP,Ini,JSON,Java,JavaScript,Makefile,Markdown,Nginx,Objective-C,PHP,Perl,Python,Ruby,SQL,Django
+                </p>
+                <p>
+                    标记为某种语言的代码块: <br>
+                    <textarea name="code3" style="width: 300px;">
 ```python
 #-*- coding:utf-8 -*-
 #!/bin/python
@@ -89,40 +212,21 @@ def hello():
     print u\"Hello World!\"
 
 hello()
-```
+```</textarea>
+                    <div>预览：</div>
+                    <div id="code3"></div>
+                </p>
+            </div>
+            <hr>
 
-
-代码块搭配 hightlight 拥有较好的展示效果
-当前集成的 hightlight 支持的语法列表如下：
-
-* Apache
-* Bash
-* C#
-* C++
-* CSS
-* CoffeeScript
-* Diff
-* HTML
-* XML
-* HTTP
-* Ini
-* JSON
-* Java
-* JavaScript
-* Makefile
-* Markdown
-* Nginx
-* Objective-C
-* PHP
-* Perl
-* Python
-* Ruby
-* SQL
-* Django
-
-
----
-##缩进
+            <h2>缩进</h2>
+            <p>
+                语法： 使用>开头的行都被认为是缩进，多个>连在一起，则缩进多次。最多6次。<br>
+                注意： > 后面并不一定要有空格。<br>
+                展望： 想办法兼容一下主流markdown语法的写法，就是：第一行缩进之后，只要没有连续空行，都认为是同一个缩进块。
+            </p>
+            <p>
+                <textarea name="blockquote" style="width: 300px;">
 > 缩进
 > 缩进第二行
 >> 二级缩进
@@ -134,20 +238,37 @@ hello()
 > 测试缩进里面嵌套其它`markdown`语法
 > 添加~~**有删除线的加粗**~~
 >> 测试** *倾斜的加粗* **
->> 测试**加粗并且含有`代码`**
+>> 测试**加粗并且含有`代码`**</textarea>
+                <div>预览：</div>
+                <div id="blockquote"></div>
+            </p>
+            <hr>
 
-
----
-##列表
-###无序列表（使用*/+/-三种符号均可）
-
+            <h2>列表</h2>
+            <div style="margin-left: 20px;">
+                <h3>无序列表</h3>
+                <p>
+                    语法： 使用*/+/-三种符号开头的行，均会被认为是列表。<br>
+                    展望： 想办法兼容一下主流markdown语法的写法，就是：第一行*之后，只要没有连续空行，都认为是同一个列表块。
+                </p>
+                <p>
+                    <textarea name="list1" style="width: 350px;">
 *   Red
 *   Green
 *   Blue
-*   无序列表中带有`markdown`**语法**
+*   无序列表中带有`markdown`**语法**</textarea>
+                    <div>预览：</div>
+                    <div id="list1"></div>
+                </p>
+                <hr>
 
-###有序列表
-
+                <h3>有序列表</h3>
+                <p>
+                    语法： 使用数字加.开头的行，均会被认为是列表。<br>
+                    展望： 想办法兼容一下主流markdown语法的写法，就是：第一行1.之后，只要没有连续空行，都认为是同一个列表块。
+                </p>
+                <p>
+                    <textarea name="list2" style="width: 400px;">
 1.  Bird
 2.  McHale
 3.  Parish
@@ -156,25 +277,54 @@ hello()
 新的列表：
 
 2. 从2开始的有序列表。
-4. 这个地方的数字就不管用了，因为属于同一块。
-
-
-        </textarea>
-
-        <div id='preview' style="width: 45%;display: inline-block; margin-left: 50px;"></div>
-
-
-
-
+4. 这个地方的数字就不管用了，因为属于同一块。</textarea>
+                    <div>预览：</div>
+                    <div id="list2"></div>
+                </p>
+            </div>
+        </div>
 
         <!-- 插件区 -->
         <script src="../dist/markdown.js"></script>
         <link rel="stylesheet" href="../plugin/highlight/styles/default.css" />
         <script src="../plugin/highlight/highlight.min.js"></script>
         <script>
-        const html = markdown.toHtml(document.getElementById("test").innerHTML);
-        document.getElementById("preview").innerHTML = html;
-        hljs.initHighlightingOnLoad();
+            function md2html(tag, name) {
+                if (name) {
+                    const origin = document.getElementsByName(name)[0];
+                    const html = markdown.toHtml(origin.value);
+                    const preview = document.getElementById(origin.name);
+                    preview.innerHTML = html;
+                } else {
+                    Array.from(document.getElementsByTagName(tag)).forEach((origin) => {
+                        const html = markdown.toHtml(origin.value);
+                        if (tag === 'textarea') {
+                            // 调整 textarea 的高宽
+                            const width = origin.scrollWidth,
+                                height = origin.scrollHeight+10;
+                                origin.setAttribute('style', `width: ${width}px;height: ${height}px`);
+                        }
+                        // 读取 markdown 字符串，转换成 html 字符串
+                        const preview = document.getElementById(origin.name);
+                        preview.innerHTML = html;
+                    });
+                }
+            }
+            md2html('textarea');
+            md2html('input');
+            Array.from(document.getElementsByTagName('textarea')).forEach((o) => {
+                o.onchange = function(e) {
+                    md2html('textarea', e.srcElement.name);
+                };
+            });
+            Array.from(document.getElementsByTagName('input')).forEach((o) => {
+                o.onchange = function(e) {
+                    md2html('input', e.srcElement.name);
+                };
+            });
+            // const html = markdown.toHtml(document.getElementById("test").innerHTML);
+            // document.getElementById("preview").innerHTML = html;
+            hljs.initHighlightingOnLoad();
         </script>
     </body>
 </html>
